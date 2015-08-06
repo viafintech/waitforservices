@@ -30,6 +30,7 @@ var timeout = flag.Int64("timeout", 60, "time to wait for all services to be up 
 var httpPort = flag.Int("httpport", 0, "wait for an http request if target port is given port")
 
 func main() {
+	setupUsage()
 	flag.Parse()
 
 	services := loadServicesFromEnv()
@@ -67,6 +68,24 @@ func main() {
 	log.Printf("All services are up!")
 }
 
+func setupUsage() {
+	flag.CommandLine.Usage = func() {
+		flag.Usage()
+		fmt.Fprint(os.Stderr, `
+Attempt to connect to all TCP services linked to a Docker container (found
+via their env vars) and wait for them to accept a TCP connection.
+
+When an <httpport> is specified, for services running on <httpport>, after
+a successful TCP connect, do an HTTP request and wait until it's done. This
+is useful for slow-starting services that only start up when they receive
+their first request.
+
+When timeout is over and TCP connect or HTTP request were unsucecssful, exit
+with status 1.
+`)
+	}
+}
+
 func loadServicesFromEnv() []Service {
 	services := make([]Service, 0)
 	for _, line := range os.Environ() {
@@ -80,7 +99,7 @@ func loadServicesFromEnv() []Service {
 			portStr := os.Getenv(portKey)
 			port, err := strconv.Atoi(portStr)
 			if err != nil {
-				log.Printf("Failed to convert '%v' to int, value: '%v' - skipping service '%v'",
+				log.Printf("Failed to convert %v to int, value: '%v' - skipping service '%v'",
 					portKey, portStr, name)
 				continue
 			}
