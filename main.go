@@ -34,7 +34,6 @@ func main() {
 	flag.Parse()
 
 	services := loadServicesFromEnv()
-	log.Printf("Services: %#v", services)
 
 	var wg sync.WaitGroup
 	cancel := make(chan struct{})
