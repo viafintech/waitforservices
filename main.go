@@ -28,6 +28,7 @@ func (s Service) AddressAndPort() string {
 
 var timeout = flag.Int64("timeout", 60, "time to wait for all services to be up (seconds)")
 var httpPort = flag.Int("httpport", 0, "wait for an http request if target port is given port")
+var ignorePort = flag.Int("ignoreport", 0, "don't wait for services on this port to be up")
 
 func main() {
 	setupUsage()
@@ -39,6 +40,9 @@ func main() {
 	cancel := make(chan struct{})
 
 	for _, service := range services {
+		if service.Port == *ignorePort {
+			continue
+		}
 		wg.Add(1)
 		go func(service Service) {
 			waitForTcpConn(service, cancel)
