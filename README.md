@@ -2,11 +2,9 @@
 
 A small utility waiting for services linked to a Docker container being ready.
 
-Without configuration, it finds all TCP services linked to a Docker container via their [environment variables](http://docs.docker.com/userguide/dockerlinks/#environment-variables) and concurrently and repeatedly tries to open a TCP connection to all of them.
+When starting multiple Docker containers at once with containers depending on and [linking to other containers](http://docs.docker.com/userguide/dockerlinks/) (e.g. using [docker compose](https://github.com/docker/compose)), you might want to do some initalization in one container depending on a service in another container already running. E.g. a web application running database migrations on startup (for testing) might need a database service in a separate container to be running, but the database container might need a few seconds until it's started and ready for connections.
 
-When all connections are successful, it returns. If one or more services aren't ready within 60 seconds, it aborts and exits with status 1.
-
-`waitforservices` also supports waiting for an HTTP request to `/` to return a response.
+In your container startup script, waitforservices allows you to wait for other services to be ready by repeatedly trying to open a TCP connection to all linked services and blocking until it succeeds or times out.
 
 ## Installation
 
@@ -22,6 +20,12 @@ There's also a Makefile in this repository if you want to build the binary yours
 Then, during container startup, you can use the `waitforservices` command to wait for all services being ready.
 
 ## Usage
+
+Without configuration, it finds all TCP services linked to a Docker container via their [environment variables](http://docs.docker.com/userguide/dockerlinks/#environment-variables) and concurrently and repeatedly tries to open a TCP connection to all of them.
+
+When all connections are successful, it returns. If one or more services aren't ready within 60 seconds, it aborts and exits with status 1.
+
+`waitforservices` also supports waiting for an HTTP request to `/` to return a response.
 
     $ ./waitforservice -help
     Usage of ./waitforservices:
