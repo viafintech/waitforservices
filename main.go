@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -23,7 +24,11 @@ func (s Service) AddressAndPort() string {
 	return fmt.Sprintf("%s:%d", s.Address, s.Port)
 }
 
+var timeout = flag.Int64("timeout", 60, "time to wait for all services to be up (seconds)")
+
 func main() {
+	flag.Parse()
+
 	services := loadServicesFromEnv()
 	log.Printf("Services: %#v", services)
 
@@ -38,7 +43,7 @@ func main() {
 		}(service)
 	}
 
-	timer := time.AfterFunc(10*time.Second, func() {
+	timer := time.AfterFunc(time.Duration(*timeout)*time.Second, func() {
 		close(cancel)
 	})
 
@@ -50,7 +55,7 @@ func main() {
 	// That shouldn't happen very often and the service was pretty short of timing out
 	// anyway, so I guess that's ok for now.
 	if !timer.Stop() {
-		log.Printf("Error: One or more services timed out")
+		log.Printf("Error: One or more services timed out after %d second(s)", *timeout)
 		os.Exit(1)
 	}
 	log.Printf("All services are up!")
