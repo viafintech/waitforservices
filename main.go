@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -25,6 +27,7 @@ func (s Service) AddressAndPort() string {
 }
 
 var timeout = flag.Int64("timeout", 60, "time to wait for all services to be up (seconds)")
+var httpPort = flag.Int("httpport", 0, "wait for an http request if target port is given port")
 
 func main() {
 	flag.Parse()
@@ -39,6 +42,9 @@ func main() {
 		wg.Add(1)
 		go func(service Service) {
 			waitForTcpConn(service, cancel)
+			if *httpPort == service.Port {
+				waitForHttpRequest(service, cancel)
+			}
 			wg.Done()
 		}(service)
 	}
@@ -97,11 +103,52 @@ func waitForTcpConn(service Service, cancel <-chan struct{}) {
 		conn, err = net.DialTimeout("tcp", service.AddressAndPort(), 1*time.Second)
 
 		if cancelled == 1 && err != nil {
-			log.Printf("Service %v (%v) timed out. Last error: %v",
+			log.Printf("TCP: Service %v (%v) timed out. Last error: %v",
 				service.Name, service.AddressAndPort(), err)
 			return
 		}
+
+		time.Sleep(200 * time.Millisecond)
 	}
 	conn.Close()
-	log.Printf("Service %v (%v) is up", service.Name, service.AddressAndPort())
+	log.Printf("TCP: Service %v (%v) is up", service.Name, service.AddressAndPort())
+}
+
+func waitForHttpRequest(service Service, cancel <-chan struct{}) {
+	url := url.URL{
+		Scheme: "http",
+		Host:   service.AddressAndPort(),
+		Path:   "/",
+	}
+
+	err := errors.New("init")
+	for err != nil {
+		req, reqErr := http.NewRequest("GET", url.String(), nil)
+		if reqErr != nil {
+			log.Printf("Warning: Failed to create request for URL '%s' -  skipping service '%s'",
+				url.String(), service.Name)
+			return
+		}
+
+		tr := &http.Transport{}
+		client := &http.Client{Transport: tr}
+		c := make(chan error, 1)
+		go func() {
+			_, err := client.Do(req)
+			c <- err
+		}()
+
+		select {
+		case <-cancel:
+			tr.CancelRequest(req)
+			log.Printf("HTTP: Service %v (%v) timed out. Last error: %v",
+				service.Name, service.AddressAndPort(), err)
+			<-c
+			return
+		case err = <-c:
+		}
+		time.Sleep(200 * time.Millisecond)
+	}
+
+	log.Printf("HTTP: Service %v (%v) is up", service.Name, service.AddressAndPort())
 }
