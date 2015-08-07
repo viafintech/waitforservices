@@ -36,6 +36,9 @@ func main() {
 
 	services := loadServicesFromEnv()
 
+	log.Printf("Waiting for %d services to be ready...", len(services))
+	begin := time.Now()
+
 	var wg sync.WaitGroup
 	cancel := make(chan struct{})
 
@@ -68,7 +71,7 @@ func main() {
 		log.Printf("Error: One or more services timed out after %d second(s)", *timeout)
 		os.Exit(1)
 	}
-	log.Printf("All services are up!")
+	log.Printf("All services are up after %v!", time.Now().Sub(begin))
 }
 
 func setupUsage() {
