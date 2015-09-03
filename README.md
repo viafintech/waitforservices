@@ -6,12 +6,14 @@ When starting multiple Docker containers at once with containers depending on an
 
 In your container startup script, waitforservices allows you to wait for other services to be ready by repeatedly trying to open a TCP connection to all linked services and blocking until it succeeds or times out.
 
+We wrote a [blog post explaining why we built waitforservices how we use it](http://barzahlen.github.io/docker-waitforservices/).
+
 ## Installation
 
 First, install the utility into your image by adding this to your Dockerfile:
 
     RUN curl --location --silent --show-error --fail \
-            https://github.com/Barzahlen/waitforservices/releases/download/v0.1/waitforservices \
+            https://github.com/Barzahlen/waitforservices/releases/download/v0.2/waitforservices \
             > /usr/local/bin/waitforservices && \
         chmod +x /usr/local/bin/waitforservices
 
@@ -23,7 +25,7 @@ Then, during container startup, you can use the `waitforservices` command to wai
 
 Without configuration, it finds all TCP services linked to a Docker container via their [environment variables](http://docs.docker.com/userguide/dockerlinks/#environment-variables) and concurrently and repeatedly tries to open a TCP connection to all of them.
 
-When all connections are successful, it returns. If one or more services aren't ready within 60 seconds, it aborts and exits with status 1.
+When all connections are successful, it returns. If one or more services aren't ready within a specified timeout (60 seconds by default), it aborts and exits with status 1.
 
 `waitforservices` also supports waiting for an HTTP request to `/` to return a response.
 
