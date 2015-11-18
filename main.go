@@ -34,7 +34,7 @@ func main() {
 	setupUsage()
 	flag.Parse()
 
-	services := loadServicesFromEnv()
+	services := deduplicateServices(loadServicesFromEnv())
 
 	log.Printf("Waiting for %d services to be ready...", len(services))
 	begin := time.Now()
@@ -113,6 +113,30 @@ func loadServicesFromEnv() []Service {
 		}
 	}
 	return services
+}
+
+func deduplicateServices(services []Service) []Service {
+	grouped := make(map[string][]Service)
+	for _, service := range services {
+		key := fmt.Sprintf("%s:%v", service.Address, service.Port)
+		if _, ok := grouped[key]; !ok {
+			grouped[key] = make([]Service, 0)
+		}
+		grouped[key] = append(grouped[key], service)
+	}
+
+	chosen := make([]Service, 0)
+	for _, serviceList := range grouped {
+		chosenForGroup := serviceList[0]
+		for _, service := range serviceList {
+			if len(service.Name) < len(chosenForGroup.Name) {
+				chosenForGroup = service
+			}
+		}
+		chosen = append(chosen, chosenForGroup)
+	}
+
+	return chosen
 }
 
 func waitForTcpConn(service Service, cancel <-chan struct{}) {
