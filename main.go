@@ -57,7 +57,7 @@ func main() {
 
 		for _, port := range ignorePorts {
 	        if service.Port == port {
-	        	fmt.Println("Ignoring Port %d", port)
+	        	log.Printf("Ignoring Service on Port %d", port)
 	            shouldSkipService = true
 	        }
     	}

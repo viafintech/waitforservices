@@ -51,7 +51,7 @@ When all connections are successful, it returns. If one or more services aren't 
 
 ## Contributions
 
-waitforservices' options are pretty limited at the moment (e.g. the `-httpport`  and `-ignoreport` parameters could support multiple ports), so we'd be happy if you create pull requests or report issues.
+waitforservices' options are pretty limited at the moment (e.g. the `-httpport` parameter could support multiple ports), so we'd be happy if you create pull requests or report issues.
 
 ## License
 
