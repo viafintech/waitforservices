@@ -1,9 +1,3 @@
-# added
-
-Multiple ports can be ignored with this fork by using e.g.
-
-    waitforservices -ignoreport=8000,8001,8002
-
 # waitforservices
 
 A small utility waiting for services linked to a Docker container being ready.
@@ -38,11 +32,14 @@ When all connections are successful, it returns. If one or more services aren't 
     $ ./waitforservice -help
     Usage of ./waitforservices:
       -httpport=0: wait for an http request if target port is given port
-      -ignoreport=0: don't wait for services on this port to be up
+      -ignoreport=0: don't wait for services on these ports to be up (separated by comma)
       -timeout=60: time to wait for all services to be up (seconds)
 
     Attempt to connect to all TCP services linked to a Docker container (found
     via their env vars) and wait for them to accept a TCP connection.
+
+    Multiple ports can be ignored by separating them via comma, e.g.
+    waitforservices -ignoreport=8000,8001,8002
 
     When an <httpport> is specified, for services running on <httpport>, after
     a successful TCP connect, do an HTTP request and wait until it's done. This
