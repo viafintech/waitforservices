@@ -28,11 +28,20 @@ func (s Service) AddressAndPort() string {
 
 var timeout = flag.Int64("timeout", 60, "time to wait for all services to be up (seconds)")
 var httpPort = flag.Int("httpport", 0, "wait for an http request if target port is given port")
-var ignorePort = flag.Int("ignoreport", 0, "don't wait for services on this port to be up")
+var _ignorePort = flag.String("ignoreport", "", "don't wait for services on these ports to be up (separated by comma)")
 
 func main() {
 	setupUsage()
 	flag.Parse()
+
+	var ignorePortStr = strings.Split(*_ignorePort, ",")
+	var ignorePorts []int
+
+	for _,portStr := range ignorePortStr {
+	  	if s, err := strconv.ParseInt(portStr, 10, 64); err == nil {
+			ignorePorts = append(ignorePorts, int(s))
+		}
+	}
 
 	services := deduplicateServices(loadServicesFromEnv())
 
@@ -43,9 +52,20 @@ func main() {
 	cancel := make(chan struct{})
 
 	for _, service := range services {
-		if service.Port == *ignorePort {
-			continue
-		}
+
+		var shouldSkipService = false
+
+		for _, port := range ignorePorts {
+	        if service.Port == port {
+	        	fmt.Println("Ignoring Port %d", port)
+	            shouldSkipService = true
+	        }
+    	}
+
+    	if shouldSkipService == true {
+    		continue
+    	}
+
 		wg.Add(1)
 		go func(service Service) {
 			waitForTcpConn(service, cancel)

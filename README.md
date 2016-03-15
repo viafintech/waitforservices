@@ -1,3 +1,9 @@
+# added
+
+Multiple ports can be ignored with this fork by using e.g.
+
+    waitforservices -ignoreport=8000,8001,8002
+
 # waitforservices
 
 A small utility waiting for services linked to a Docker container being ready.
