@@ -2,6 +2,8 @@
 
 A small utility waiting for services linked to a Docker container being ready.
 
+**NOTE**: [Docker link environment variables are deprecated and will be removed](https://docs.docker.com/compose/link-env-deprecated/). We haven't thought about how waitforservices will work then. See [issue 3](https://github.com/Barzahlen/waitforservices/issues/3) for more information. We'd be happy about ideas.
+
 When starting multiple Docker containers at once with containers depending on and [linking to other containers](http://docs.docker.com/userguide/dockerlinks/) (e.g. using [docker compose](https://github.com/docker/compose)), you might want to do some initalization in one container depending on a service in another container already running. E.g. a web application running database migrations on startup (for testing) might need a database service in a separate container to be running, but the database container might need a few seconds until it's started and ready for connections.
 
 In your container startup script, waitforservices allows you to wait for other services to be ready by repeatedly trying to open a TCP connection to all linked services and blocking until it succeeds or times out.
