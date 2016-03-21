@@ -1,4 +1,4 @@
-# waitforservices
+# waitforservices ![Travis CI Status](https://travis-ci.org/Barzahlen/waitforservices.svg?branch=master)
 
 A small utility waiting for services linked to a Docker container being ready.
 
