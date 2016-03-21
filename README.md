@@ -15,7 +15,7 @@ We wrote a [blog post explaining why we built waitforservices how we use it](htt
 First, install the utility into your image by adding this to your Dockerfile:
 
     RUN curl --location --silent --show-error --fail \
-            https://github.com/Barzahlen/waitforservices/releases/download/v0.3/waitforservices \
+            https://github.com/Barzahlen/waitforservices/releases/download/v0.4/waitforservices \
             > /usr/local/bin/waitforservices && \
         chmod +x /usr/local/bin/waitforservices
 
