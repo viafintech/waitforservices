@@ -62,8 +62,8 @@ func main() {
 
 	wg.Wait()
 
-	// There's a race here that might result in assuming that a timeout happend
-	// although none happend. It appears when the timer fires after the connection
+	// There's a race here that might result in assuming that a timeout happened
+	// although none happened. It appears when the timer fires after the connection
 	// succeeded, but before the check via Stop() below.
 	// That shouldn't happen very often and the service was pretty short of timing out
 	// anyway, so I guess that's ok for now.
