@@ -29,6 +29,7 @@ func (s Service) AddressAndPort() string {
 var timeout = flag.Int64("timeout", 60, "time to wait for all services to be up (seconds)")
 var httpPort = flag.Int("httpport", 0, "wait for an http request if target port is given port")
 var ignorePort = flag.Int("ignoreport", 0, "don't wait for services on this port to be up")
+var legacy = flag.Bool("legacy", false, "use docker link enviroment variables")
 
 func main() {
 	setupUsage()
@@ -78,9 +79,12 @@ func setupUsage() {
 	flag.CommandLine.Usage = func() {
 		flag.Usage()
 		fmt.Fprint(os.Stderr, `
-Attempt to connect to all TCP services linked to a Docker container (found
-via their env vars) and wait for them to accept a TCP connection.
+Attempt to connect to all TCP services linked  by the environement variable
+declared like _HOST and _PORT and wait for them to accept a TCP connection.
 
+When the _legacy_ option is specified, it finds all TCP services linked to
+ a Docker container via their environment variables.
+ 
 When an <httpport> is specified, for services running on <httpport>, after
 a successful TCP connect, do an HTTP request and wait until it's done. This
 is useful for slow-starting services that only start up when they receive
@@ -94,14 +98,24 @@ with status 1.
 
 func loadServicesFromEnv() []Service {
 	services := make([]Service, 0)
+	hostSuffix := "_HOST"
+	portSuffix := "_PORT"
+	offset := 5
+
+	if *legacy {
+		hostSuffix = "_TCP_ADDR"
+		portSuffix = "_TCP_PORT"
+		offset = 9
+	}
+
 	for _, line := range os.Environ() {
 		keyAndValue := strings.SplitN(line, "=", 2)
 		addrKey := keyAndValue[0]
-		if strings.HasSuffix(addrKey, "_TCP_ADDR") {
+		if strings.HasSuffix(addrKey, hostSuffix) {
 			addr := os.Getenv(addrKey)
-			name := addrKey[:len(addrKey)-9] // cut off "_TCP_ADDR"
+			name := addrKey[:len(addrKey)-offset] // cut off "_HOST"
 
-			portKey := name + "_TCP_PORT"
+			portKey := name + portSuffix
 			portStr := os.Getenv(portKey)
 			port, err := strconv.Atoi(portStr)
 			if err != nil {
