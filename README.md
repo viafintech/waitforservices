@@ -17,7 +17,7 @@ Then, during container startup, you can use the `waitforservices` command to wai
 
 ## Usage
 
-Without configuration, it finds all TCP services specified by the environement variable declared like _\_HOST and _\_PORT (for exemple POSTGRES_HOST and POSTGRES_PORT) and concurrently and repeatedly tries to open a TCP connection to all of them.
+Without configuration, it finds all TCP services specified by the environement variable declared like _\_HOST and _\_PORT (for example POSTGRES_HOST and POSTGRES_PORT) and concurrently and repeatedly tries to open a TCP connection to all of them.
 
 When the _legacy_ option is specified, it finds all TCP services linked to a Docker container via their [environment variables](http://docs.docker.com/userguide/dockerlinks/#environment-variables)
 
@@ -47,8 +47,6 @@ When all connections are successful, it returns. If one or more services aren't 
     with status 1.
 
 ## Legacy support
-
-**NOTE**: [Docker link environment variables are deprecated and will be removed](https://docs.docker.com/compose/link-env-deprecated/). We haven't thought about how waitforservices will work then. See [issue 3](https://github.com/Barzahlen/waitforservices/issues/3) for more information. We'd be happy about ideas.
 
 When starting multiple Docker containers at once with containers depending on and [linking to other containers](http://docs.docker.com/userguide/dockerlinks/) (e.g. using [docker compose](https://github.com/docker/compose)), you might want to do some initalization in one container depending on a service in another container already running. E.g. a web application running database migrations on startup (for testing) might need a database service in a separate container to be running, but the database container might need a few seconds until it's started and ready for connections.
 
