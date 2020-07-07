@@ -16,12 +16,31 @@ import (
 	"time"
 )
 
+const usage = `
+Attempt to connect to all TCP services linked  by the environement variable
+declared like _HOST and _PORT and wait for them to accept a TCP connection.
+
+When the _legacy_ option is specified, it finds all TCP services linked to
+ a Docker container via their environment variables.
+
+When an <httpport> is specified, for services running on <httpport>, after
+a successful TCP connect, do an HTTP request and wait until it's done. This
+is useful for slow-starting services that only start up when they receive
+their first request.
+
+When timeout is over and TCP connect or HTTP request were unsucecssful, exit
+with status 1.
+`
+
+// Service holds the information for a docker service
 type Service struct {
 	Name    string
 	Address string
 	Port    int
 }
 
+// AddressAndPort represent the address and the port in the following format
+// address:port
 func (s Service) AddressAndPort() string {
 	return fmt.Sprintf("%s:%d", s.Address, s.Port)
 }
@@ -78,21 +97,7 @@ func main() {
 func setupUsage() {
 	flag.CommandLine.Usage = func() {
 		flag.Usage()
-		fmt.Fprint(os.Stderr, `
-Attempt to connect to all TCP services linked  by the environement variable
-declared like _HOST and _PORT and wait for them to accept a TCP connection.
-
-When the _legacy_ option is specified, it finds all TCP services linked to
- a Docker container via their environment variables.
-
-When an <httpport> is specified, for services running on <httpport>, after
-a successful TCP connect, do an HTTP request and wait until it's done. This
-is useful for slow-starting services that only start up when they receive
-their first request.
-
-When timeout is over and TCP connect or HTTP request were unsucecssful, exit
-with status 1.
-`)
+		fmt.Fprint(os.Stderr, usage)
 	}
 }
 
