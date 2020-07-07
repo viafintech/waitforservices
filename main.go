@@ -29,7 +29,7 @@ func (s Service) AddressAndPort() string {
 var timeout = flag.Int64("timeout", 60, "time to wait for all services to be up (seconds)")
 var httpPort = flag.Int("httpport", 0, "wait for an http request if target port is given port")
 var ignorePort = flag.Int("ignoreport", 0, "don't wait for services on this port to be up")
-var legacy = flag.Bool("legacy", false, "use docker link enviroment variables")
+var legacy = flag.Bool("legacy", false, "use docker link environment variables")
 
 func main() {
 	setupUsage()
@@ -84,7 +84,7 @@ declared like _HOST and _PORT and wait for them to accept a TCP connection.
 
 When the _legacy_ option is specified, it finds all TCP services linked to
  a Docker container via their environment variables.
- 
+
 When an <httpport> is specified, for services running on <httpport>, after
 a successful TCP connect, do an HTTP request and wait until it's done. This
 is useful for slow-starting services that only start up when they receive
