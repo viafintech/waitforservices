@@ -1,3 +1,3 @@
 all:
-	docker run --rm -e CGO_ENABLED=0 -v $(CURDIR):/go golang:1.13 \
+	docker run --rm -e CGO_ENABLED=0 -v $(CURDIR):/go golang:1.14 \
 		go build -o /go/build/waitforservices
